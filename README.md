@@ -1,2 +1,2 @@
 # Tibi_OS
-Simple Linux Distro
+Simple OS writen in rust
