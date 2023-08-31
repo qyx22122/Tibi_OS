@@ -8,30 +8,20 @@ use core::panic::PanicInfo;
 use Tibi_OS::println;
 
 
-#[no_mangle]
+#[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
-    println!("Hello!");
-    #[cfg(test)]
     test_main();
-    
+
     loop {}
 }
 
 
-//Panic handler
-#[cfg(not(test))]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> !{
-    println!("\n!!! {} !!!", info);
-    loop{}
-}
-
-//Panic handler in test
-
-#[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    Tibi_OS::test_panic_handler(info)
+    Tibi_OS::test_panic_handler(info);
 }
 
-
+#[test_case]
+fn test_println(){
+    println!("test_println");
+}
