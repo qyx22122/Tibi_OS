@@ -8,18 +8,23 @@ use Tibi_OS::println;
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     
-    for i in 0..100+1{
-       println!("Hello! {}",i); 
-    }
-    
-    
+    println!("Hello World{}", "!");
+
     Tibi_OS::init();
 
-    // x86_64::instructions::interrupts::int3();
+    // trigger a stack overflow
+    stack_overflow();
+
+    println!("Doesn't crash!");
     
     loop {}
 }
 
+#[allow(unconditional_recursion)]
+fn stack_overflow() {
+    stack_overflow(); // for each recursion, the return address is pushed
+    volatile::Volatile::new(0).read(); // prevent tail recursion optimizations
+}
 
 //Panic handler
 #[panic_handler]
