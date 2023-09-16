@@ -12,12 +12,9 @@ pub extern "C" fn _start() -> ! {
 
     Tibi_OS::init();
 
-    // trigger a stack overflow
-    stack_overflow();
-
     println!("Doesn't crash!");
     
-    loop {}
+    Tibi_OS::hlt_loop();
 }
 
 #[allow(unconditional_recursion)]
@@ -30,5 +27,5 @@ fn stack_overflow() {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> !{
     println!("\n!!! {} !!!", info);
-    loop{}
+    Tibi_OS::hlt_loop();
 }
