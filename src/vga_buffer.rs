@@ -68,10 +68,7 @@ const BUFFER_HEIGHT: usize = 25;
 #[repr(transparent)]
 struct Buffer {
 	chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
-}
-
-
-    
+}   
 
 //Writer
 
@@ -103,6 +100,19 @@ impl Writer{
             }
         }
     }
+    pub fn remove_byte(&mut self)
+    {
+        let row = BUFFER_HEIGHT -1;
+        self.column_pos -= 1; //move one back
+        let col = self.column_pos;
+        let color_code = self.color_code;
+
+        self.buffer.chars[row][col].write(ScreenChar{
+            ascii_char: b'\0',
+            color_code,
+        });
+
+    }
 
 
     pub fn write_string(&mut self, s : &str){
@@ -125,6 +135,7 @@ impl Writer{
         self.clear_row(BUFFER_HEIGHT - 1);
         self.column_pos = 0;
     }
+
     fn clear_row(&mut self, row: usize) {
         let blank = ScreenChar {
             ascii_char: b' ',
@@ -147,11 +158,6 @@ impl fmt::Write for Writer {
     }
 }
 
-
-
-
-
-
 //Macros
 
 #[macro_export]
@@ -165,6 +171,11 @@ macro_rules! println {
     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
 }
 
+#[macro_export]
+macro_rules! remove {
+    () => ($crate::vga_buffer::_remove())
+}
+
 // Fix the previous deadlock
 
 #[doc(hidden)]
@@ -174,5 +185,14 @@ pub fn _print(args: fmt::Arguments) {
 
     interrupts::without_interrupts(|| {
         WRITER.lock().write_fmt(args).unwrap();
+    });
+}
+
+#[doc(hidden)]
+pub fn _remove() {
+    use x86_64::instructions::interrupts;
+
+    interrupts::without_interrupts(|| {
+        WRITER.lock().remove_byte();
     });
 }
