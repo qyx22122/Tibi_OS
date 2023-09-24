@@ -6,14 +6,22 @@ pub mod serial;
 pub mod vga_buffer;
 pub mod interrupts;
 pub mod gdt;
+pub mod terminal;
+
+use crate::terminal::Terminal;
 
 pub fn init(){
     gdt::init();
-    interrupts::init_idt();
+
+    let terminal: &Terminal = unsafe { &interrupts::init_idt() };
+
     // Initialize PIC
     unsafe { interrupts::PICS.lock().initialize() };
+
     // Enable Interrupts
     x86_64::instructions::interrupts::enable();
+
+    terminal.init();
 }
 
 // CPU hlt loop

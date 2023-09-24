@@ -4,10 +4,13 @@ use crate::println;
 use crate::print;
 use crate::gdt;
 
+use crate::Terminal;
+
 // IMPORTANT -- USB keyboards NOT SUPPORTED!
 // TODO: Implement USB support
 
 // Programmable Interrupt Controller 8259
+
 use pic8259::ChainedPics;
 use spin;
 
@@ -15,6 +18,8 @@ pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
 
 pub static PICS: spin::Mutex<ChainedPics> = spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
+
+pub static mut TERMINAL: Terminal = Terminal::new();
 
 // Timer Interrupts
 
@@ -57,8 +62,10 @@ lazy_static! {
     };
 }
 
-pub fn init_idt(){
+pub unsafe fn init_idt()->Terminal{
 	IDT.load();
+
+    return TERMINAL;
 }
 
 // Double fault handler
@@ -94,13 +101,12 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
         if let Some(key) = keyboard.process_keyevent(key_event) {
             match key {
-                DecodedKey::Unicode(character) => print!("{}", character),
-                DecodedKey::RawKey(key) => print!("RAW({:?})", key),
+                DecodedKey::Unicode(character) => unsafe { TERMINAL.write_terminal(character) },
+                DecodedKey::RawKey(key) => {},//print!("{:?}", key),
             }
         }
     }
-
-    unsafe {
+    unsafe{
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
     }
