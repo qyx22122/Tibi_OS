@@ -10,8 +10,12 @@ pub extern "C" fn _start() -> ! {
     
     println!("Hello World{}", "!");
 
+
+
     Tibi_OS::init();
+
     
+
     Tibi_OS::hlt_loop();
 }
 
