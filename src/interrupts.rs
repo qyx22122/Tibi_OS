@@ -3,11 +3,8 @@ use lazy_static::lazy_static;
 use pic8259::ChainedPics;
 use spin;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
-use crate::Terminal;
 
-
-pub static mut TERMINAL: Terminal = Terminal::new();
-
+use crate::terminal;
 
 pub const PIC_1_OFFSET: u8 = 32;
 pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
@@ -48,9 +45,8 @@ lazy_static! {
     };
 }
 
-pub unsafe fn init_idt() -> Terminal {
+pub unsafe fn init_idt() {
     IDT.load();
-    TERMINAL
 }
 
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
@@ -103,7 +99,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
         if let Some(key) = keyboard.process_keyevent(key_event) {
             match key {
-                DecodedKey::Unicode(character) => unsafe{ TERMINAL.write_terminal(character) },
+                DecodedKey::Unicode(character) => terminal::write_terminal(character),
                 DecodedKey::RawKey(_key) => {}
             }
         }

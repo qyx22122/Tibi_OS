@@ -1,57 +1,59 @@
-use crate::println;
 use crate::print;
 use crate::remove;
+use crate::commands;
+use alloc::string::{String};
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub struct Terminal
+static mut COMMAND: String = String::new();
+
+pub fn print_terminal_header()
 {
-    column_pos: u8
+    print!("> ");
 }
-impl Terminal
+
+unsafe fn enter_command()
 {
-    
-    fn write_terminal_line()
+    if COMMAND.len() < 1
     {
-        print!("/> ");
-    }
-    pub const fn new() -> Terminal {
-        return Terminal { column_pos: 0 };
+        return;
     }
 
-    pub fn init(&self)
+    print!("\n");
+
+    match COMMAND.as_str()
     {
-        println!("Welcome to the Terminal...");
-        Self::write_terminal_line();
+        "help" => {
+            commands::help();
+        }
+
+        _ => {
+            print!("No command called '{}'", COMMAND);
+        }
     }
+}
 
-    pub fn write_terminal(& mut self, mut ch: char)
-    {
-        if ch == '\x08'
-        {
-            if self.column_pos > 0
-            {
-                remove!();
-
-                self.column_pos-=1;
+pub fn write_terminal(ch: char)
+{
+    match ch{
+        '\x08'=> {
+            unsafe{
+                if COMMAND.len() > 0
+                {
+                    COMMAND.pop();
+                    remove!();
+                }
             }
-            return;
         }
-
-        if ch == '\t'
-        {
-            print!(" ");
-            self.column_pos+=1;
-            ch = ' ';
+        '\n' => {
+            unsafe {
+                enter_command();
+                COMMAND = String::new();
+            };
+            print!("\n");
+            print_terminal_header();
         }
-        
-        print!("{}", ch);
-        self.column_pos += 1;
-
-
-        if ch == '\n'
-        {
-            Self::write_terminal_line();
-            self.column_pos = 0;
+        _ => {
+            unsafe{COMMAND.push(ch)};
+            print!("{}", ch);
         }
     }
 }

@@ -11,20 +11,19 @@ pub mod interrupts;
 pub mod memory;
 pub mod vga_buffer;
 pub mod terminal;
-
-use crate::terminal::Terminal;
+pub mod commands;
 
 use bootloader::BootInfo;
 
 pub fn init(boot_info: &'static BootInfo) {
     gdt::init();
-    let terminal: &Terminal = unsafe { &interrupts::init_idt() };
+    unsafe { interrupts::init_idt() };
     unsafe { interrupts::PICS.lock().initialize() };
     x86_64::instructions::interrupts::enable();
 
     setup_allocation(boot_info);
 
-    terminal.init();
+    terminal::print_terminal_header();
 }
 
 fn setup_allocation(boot_info: &'static BootInfo)
