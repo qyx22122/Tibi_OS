@@ -20,16 +20,25 @@ unsafe fn enter_command()
 
     print!("\n");
 
-    match COMMAND.split(" ").collect::<Vec<&str>>()[0]
+    let mut split = COMMAND.split(" ").collect::<Vec<&str>>();
+
+    let command = split[0];
+
+    split.remove(0);
+
+    match command
     {
         "help" => {
-            commands::help();
+            commands::help(split);
         }
         "clear" => {
-            commands::clear();
+            commands::clear(split);
         }
         "exit" => {
             commands::exit();
+        }
+        "echo" => {
+            commands::echo(split);
         }
 
         _ => {
