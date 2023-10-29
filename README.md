@@ -3,6 +3,7 @@
 Simple OS writen in rust
 
 # Build
+You NEED to run `cargo install bootimage` before compiling!!!
 
 Run `make build` to build,
 `make run` to build & run,
