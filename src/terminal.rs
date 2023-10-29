@@ -2,6 +2,7 @@ use crate::print;
 use crate::remove;
 use crate::commands;
 use alloc::string::{String};
+use alloc::vec::Vec;
 
 static mut COMMAND: String = String::new();
 
@@ -19,10 +20,16 @@ unsafe fn enter_command()
 
     print!("\n");
 
-    match COMMAND.as_str()
+    match COMMAND.split(" ").collect::<Vec<&str>>()[0]
     {
         "help" => {
             commands::help();
+        }
+        "clear" => {
+            commands::clear();
+        }
+        "exit" => {
+            commands::exit();
         }
 
         _ => {
@@ -34,7 +41,12 @@ unsafe fn enter_command()
 pub fn write_terminal(ch: char)
 {
     match ch{
-        '\x08'=> {
+        // delete, escape, tab
+        '\u{007F}' | '\x1B' | '\t' => {
+
+        }
+        // backspace
+        '\x08' => {
             unsafe{
                 if COMMAND.len() > 0
                 {
@@ -43,6 +55,7 @@ pub fn write_terminal(ch: char)
                 }
             }
         }
+        // newline
         '\n' => {
             unsafe {
                 enter_command();
@@ -52,7 +65,14 @@ pub fn write_terminal(ch: char)
             print_terminal_header();
         }
         _ => {
-            unsafe{COMMAND.push(ch)};
+            unsafe{
+                if COMMAND.len() > 77
+                {
+                    write_terminal('\n');
+                    return;
+                }
+                COMMAND.push(ch);
+            }
             print!("{}", ch);
         }
     }
