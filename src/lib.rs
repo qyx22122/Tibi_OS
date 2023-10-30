@@ -12,6 +12,7 @@ pub mod memory;
 pub mod vga_buffer;
 pub mod terminal;
 pub mod commands;
+pub mod utilities;
 
 use bootloader::BootInfo;
 
