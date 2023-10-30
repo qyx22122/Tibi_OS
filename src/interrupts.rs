@@ -3,6 +3,7 @@ use lazy_static::lazy_static;
 use pic8259::ChainedPics;
 use spin;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
+use alloc::format;
 
 use crate::terminal;
 
@@ -100,7 +101,10 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
         if let Some(key) = keyboard.process_keyevent(key_event) {
             match key {
                 DecodedKey::Unicode(character) => terminal::write_terminal(character),
-                DecodedKey::RawKey(_key) => {}
+                DecodedKey::RawKey(_key) => {
+                    let key_string = format!("{:?}", _key);
+                    terminal::get_raw_key(key_string.clone());
+                }
             }
         }
     }
