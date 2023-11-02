@@ -12,7 +12,7 @@ pub mod memory;
 pub mod vga_buffer;
 pub mod terminal;
 pub mod commands;
-pub mod utilities;
+pub mod filesystem;
 
 use bootloader::BootInfo;
 
@@ -24,7 +24,9 @@ pub fn init(boot_info: &'static BootInfo) {
 
     setup_allocation(boot_info);
 
-    terminal::print_terminal_header();
+    filesystem::init();
+
+    terminal::init();
 }
 
 fn setup_allocation(boot_info: &'static BootInfo)

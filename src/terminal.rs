@@ -1,16 +1,33 @@
 use crate::print;
 use crate::remove;
 use crate::commands;
-use alloc::string::{String};
+use alloc::string::{String, ToString};
+use alloc::format;
 use alloc::vec::Vec;
+use crate::filesystem;
 
 static mut COMMAND: String = String::new();
+
+static mut DIRECTORY: String = String::new();
+
 static mut PREV_COMMANDS: Vec<String> = Vec::new();
 static mut CURRENT_INDEX: i32 = -1;
 
+pub fn init()
+{
+    unsafe
+    {
+        DIRECTORY = "/".to_string();
+    }
+    print_terminal_header();
+}
+
 pub fn print_terminal_header()
 {
-    print!("> ");
+    unsafe
+    {
+        print!("{}> ", DIRECTORY);
+    }
 }
 
 unsafe fn enter_command()
@@ -43,6 +60,46 @@ unsafe fn enter_command()
         }
         "echo" => {
             commands::echo(split);
+        }
+        "ls" => {
+            unsafe
+            {
+                commands::ls(DIRECTORY.clone());
+            }
+        }
+        "cd" => {
+            unsafe
+            {
+                if split.len() < 1
+                {
+                    DIRECTORY = "/".to_string();
+                }
+                else if filesystem::exists(format!("/{}", split[0]))
+                {
+                    DIRECTORY = format!("/{}", split[0]);
+                }
+                else
+                {
+                    print!("Couldn't find /{} in filesystem.", split[0]);
+                }
+            }
+        }
+        "mk" => {
+            commands::mk(split);
+        }
+        "rm" => {
+            if split.len() < 1
+            {
+                print!("You must provide an argument.");
+            }
+            else if filesystem::exists(format!("/{}", split[0]))
+            {
+                commands::rm(split[0].to_string());
+            }
+            else
+            {
+                print!("Couldn't find /{} in filesystem.", split[0]);
+            }
         }
 
         _ => {

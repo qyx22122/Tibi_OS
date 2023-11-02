@@ -12,7 +12,6 @@ entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
-    println!("Hello World{}", "!");
     Tibi_OS::init(boot_info);
 
     Tibi_OS::hlt_loop();
