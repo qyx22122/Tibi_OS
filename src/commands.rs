@@ -7,12 +7,18 @@ use crate::filesystem;
 
 pub fn help(_args: Vec<&str>)
 {
-    print!("Simple OS\n");
-    print!("Terminal commands:\n");
-    print!("help,\n");
-    print!("clear,\n");
-    print!("echo,\n");
-    print!("exit");
+    print!("\n");
+    print!("Tibi OS\n\n");
+    print!("Commands:\n");
+    println!("  help - Shows this");
+    println!("  clear - Clears screen");
+    println!("  echo [...args] - Prints args to screen");
+    println!("  exit - Exits OS");
+    print!("Filesystem commands:\n");
+    println!("  ls - Lists the contents of the current file");
+    println!("  cf [path] - Changes the current file");
+    println!("  mk [path][...args] - Creates a new file with the contents of args");
+    println!("  rm [path] - Deletes file at path");
 }
 pub fn clear(_args: Vec<&str>)
 {

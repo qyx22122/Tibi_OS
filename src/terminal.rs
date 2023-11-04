@@ -67,7 +67,7 @@ unsafe fn enter_command()
                 commands::ls(DIRECTORY.clone());
             }
         }
-        "cd" => {
+        "cf" => {
             unsafe
             {
                 if split.len() < 1
